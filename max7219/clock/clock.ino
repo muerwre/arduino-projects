@@ -6,11 +6,13 @@
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
 #include "Format.h"
-// #include "Fonts7seg.h"
+#include "Fonts7seg.h"
 
 // Buttons
 int PAUSE_PIN = 2;
+int lastPausePinStatus = LOW;
 int NEXT_PIN = 3;
+int lastNextPinStatus = LOW;
 
 // LEDs
 #define USE_GENERIC_HW 1
@@ -23,9 +25,9 @@ int NEXT_PIN = 3;
 MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 
 // Durations
-const int WORK_DURATION = 25;      // 25 * 60
-const int REST_DURATION = 5;       // 5 * 60
-const int LONG_REST_DURATION = 15; // 15 * 60
+const int WORK_DURATION = 25 * 60;      // 25 * 60
+const int REST_DURATION = 5 * 60;       // 5 * 60
+const int LONG_REST_DURATION = 15 * 60; // 15 * 60
 const int TOTAL_CYCLES = 4;
 
 // Timer values
@@ -61,7 +63,7 @@ void setup()
   P.setSpeed(10);
 
   setTimer(WORK_DURATION);
-  pause(); // TODO: uncomment
+  pause();
   setMode(Work);
 }
 
@@ -69,25 +71,32 @@ void loop()
 {
   display();
 
-  if (digitalRead(PAUSE_PIN) == HIGH)
+  if (digitalRead(PAUSE_PIN) == HIGH && lastPausePinStatus != HIGH)
   {
+    lastPausePinStatus = HIGH;
     if (paused)
     {
       resume();
-      delay(1000);
     }
     else
     {
       pause();
-      delay(1000);
     }
   }
-
-  if (digitalRead(NEXT_PIN) == HIGH)
+  else if (lastPausePinStatus != digitalRead(PAUSE_PIN))
   {
+    lastPausePinStatus = LOW;
+  }
+
+  if (digitalRead(NEXT_PIN) == HIGH && lastNextPinStatus != HIGH)
+  {
+    lastNextPinStatus = HIGH;
     next();
     resume();
-    delay(1000);
+  }
+  else if (lastNextPinStatus != digitalRead(NEXT_PIN))
+  {
+    lastNextPinStatus = LOW;
   }
 
   if (paused || millis() - timing < second)
@@ -119,11 +128,13 @@ void setMode(Mode m)
 
 void pause()
 {
+  blinkTimer = millis();
   paused = true;
 }
 
 void resume()
 {
+  timing = millis();
   paused = false;
 }
 
@@ -145,6 +156,8 @@ void setCycle(int cycle)
 
 void next()
 {
+  timing = millis();
+
   if (cycleNumber == TOTAL_CYCLES - 1)
   {
     if (mode == Work)
@@ -196,7 +209,7 @@ void display()
     }
   }
 
-  itoa(timer, timerString, 10);
+  formatTime(timerString, timer);
   // P.displayText(timerString, PA_CENTER, P.getSpeed(), P.getPause(), PA_NO_EFFECT, PA_NO_EFFECT);
   P.displayText(timerString, PA_CENTER, P.getSpeed(), P.getPause(), PA_NO_EFFECT, PA_NO_EFFECT);
 }
