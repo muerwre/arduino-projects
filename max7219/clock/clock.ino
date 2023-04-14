@@ -59,7 +59,7 @@ void setup()
   Serial.begin(115200);
 
   P.begin();
-  // P.setFont(compact);
+  P.setFont(compact);
   P.setSpeed(10);
 
   setTimer(WORK_DURATION);
@@ -210,6 +210,5 @@ void display()
   }
 
   formatTime(timerString, timer);
-  // P.displayText(timerString, PA_CENTER, P.getSpeed(), P.getPause(), PA_NO_EFFECT, PA_NO_EFFECT);
   P.displayText(timerString, PA_CENTER, P.getSpeed(), P.getPause(), PA_NO_EFFECT, PA_NO_EFFECT);
 }
