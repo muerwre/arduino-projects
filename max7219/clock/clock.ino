@@ -76,33 +76,8 @@ void loop()
 {
   display();
 
-  if (digitalRead(PAUSE_PIN) == HIGH && lastPausePinStatus != HIGH)
-  {
-    lastPausePinStatus = HIGH;
-    if (paused)
-    {
-      resume();
-    }
-    else
-    {
-      pause();
-    }
-  }
-  else if (lastPausePinStatus != digitalRead(PAUSE_PIN))
-  {
-    lastPausePinStatus = LOW;
-  }
-
-  if (digitalRead(NEXT_PIN) == HIGH && lastNextPinStatus != HIGH)
-  {
-    lastNextPinStatus = HIGH;
-    next();
-    resume();
-  }
-  else if (lastNextPinStatus != digitalRead(NEXT_PIN))
-  {
-    lastNextPinStatus = LOW;
-  }
+  checkPauseButton();
+  checkNextButton();
 
   if (paused || millis() - timing < second)
   {
@@ -224,4 +199,38 @@ void display()
 void beep()
 {
   tone(BEEPER_PIN, beeperFreq, beeperDuration);
+}
+
+void checkPauseButton()
+{
+  if (digitalRead(PAUSE_PIN) == HIGH && lastPausePinStatus != HIGH)
+  {
+    lastPausePinStatus = HIGH;
+    if (paused)
+    {
+      resume();
+    }
+    else
+    {
+      pause();
+    }
+  }
+  else if (lastPausePinStatus != digitalRead(PAUSE_PIN))
+  {
+    lastPausePinStatus = LOW;
+  }
+}
+
+void checkNextButton()
+{
+  if (digitalRead(NEXT_PIN) == HIGH && lastNextPinStatus != HIGH)
+  {
+    lastNextPinStatus = HIGH;
+    next();
+    resume();
+  }
+  else if (lastNextPinStatus != digitalRead(NEXT_PIN))
+  {
+    lastNextPinStatus = LOW;
+  }
 }
