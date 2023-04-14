@@ -14,6 +14,11 @@ int lastPausePinStatus = LOW;
 int NEXT_PIN = 3;
 int lastNextPinStatus = LOW;
 
+// Beepers
+int BEEPER_PIN = 5;
+int beeperFreq = 1000;
+int beeperDuration = 150;
+
 // LEDs
 #define USE_GENERIC_HW 1
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
@@ -130,12 +135,14 @@ void pause()
 {
   blinkTimer = millis();
   paused = true;
+  beep();
 }
 
 void resume()
 {
   timing = millis();
   paused = false;
+  beep();
 }
 
 void tick()
@@ -156,6 +163,7 @@ void setCycle(int cycle)
 
 void next()
 {
+  beep();
   timing = millis();
 
   if (cycleNumber == TOTAL_CYCLES - 1)
@@ -211,4 +219,9 @@ void display()
 
   formatTime(timerString, timer);
   P.displayText(timerString, PA_CENTER, P.getSpeed(), P.getPause(), PA_NO_EFFECT, PA_NO_EFFECT);
+}
+
+void beep()
+{
+  tone(BEEPER_PIN, beeperFreq, beeperDuration);
 }
