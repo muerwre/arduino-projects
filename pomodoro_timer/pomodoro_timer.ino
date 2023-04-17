@@ -30,9 +30,9 @@ int beeperDuration = 150;
 MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 
 // Durations
-const int WORK_DURATION = 25 * 60;      // 25 * 60
-const int REST_DURATION = 5 * 60;       // 5 * 60
-const int LONG_REST_DURATION = 15 * 60; // 15 * 60
+const int WORK_DURATION = 24 * 60;      // 25 * 60
+const int REST_DURATION = 6 * 60;       // 5 * 60
+const int LONG_REST_DURATION = 16 * 60; // 15 * 60
 const int TOTAL_CYCLES = 4;
 
 // Timer values
@@ -40,7 +40,7 @@ int timer = 0;
 char timerString[32] = "";
 
 // Pause
-bool paused = false; // TODO: true
+bool paused = false;
 int cycleNumber = 0;
 unsigned long timing;
 int second = 1000;
@@ -68,6 +68,7 @@ void setup()
   P.setSpeed(10);
 
   setTimer(WORK_DURATION);
+  beepBeep();
   pause();
   setMode(Work);
 }
@@ -110,14 +111,12 @@ void pause()
 {
   blinkTimer = millis();
   paused = true;
-  beep();
 }
 
 void resume()
 {
   timing = millis();
   paused = false;
-  beep();
 }
 
 void tick()
@@ -126,6 +125,7 @@ void tick()
 
   if (timer < 0)
   {
+    beepBeep();
     next();
     return;
   }
@@ -138,7 +138,6 @@ void setCycle(int cycle)
 
 void next()
 {
-  beep();
   timing = millis();
 
   if (cycleNumber == TOTAL_CYCLES - 1)
@@ -201,10 +200,19 @@ void beep()
   tone(BEEPER_PIN, beeperFreq, beeperDuration);
 }
 
+void beepBeep()
+{
+  tone(BEEPER_PIN, beeperFreq, beeperDuration);
+  delay(beeperDuration * 1.5);
+  tone(BEEPER_PIN, beeperFreq, beeperDuration);
+}
+
 void checkPauseButton()
 {
   if (digitalRead(PAUSE_PIN) == HIGH && lastPausePinStatus != HIGH)
   {
+    beep();
+
     lastPausePinStatus = HIGH;
     if (paused)
     {
@@ -225,7 +233,9 @@ void checkNextButton()
 {
   if (digitalRead(NEXT_PIN) == HIGH && lastNextPinStatus != HIGH)
   {
+
     lastNextPinStatus = HIGH;
+    beep();
     next();
     resume();
   }
