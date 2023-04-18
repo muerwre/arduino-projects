@@ -167,6 +167,18 @@ void next()
 
 void drawTime()
 {
+  formatTime(timerString, timer);
+  mp.drawText(5, 7, timerString, MD_MAXPanel::ROT_0);
+}
+
+void drawMode()
+{
+  if (mode == Clock)
+  {
+    mp.drawText(1, 6, "c", MD_MAXPanel::ROT_0);
+    return;
+  }
+
   if (paused)
   {
     int now = millis();
@@ -179,23 +191,13 @@ void drawTime()
 
     if (float(diff) < floor((float)blinkDuration / 2))
     {
-      mp.drawText(5, 7, "     ", MD_MAXPanel::ROT_0);
+      mp.drawText(1, 6, " ", MD_MAXPanel::ROT_0);
       return;
     }
   }
 
-  formatTime(timerString, timer);
-
-  mp.drawText(5, 7, timerString, MD_MAXPanel::ROT_0);
-}
-
-void drawMode()
-{
   switch (mode)
   {
-  case Clock:
-    mp.drawText(1, 6, "c", MD_MAXPanel::ROT_0);
-    return;
   case Work:
     mp.drawText(1, 6, "w", MD_MAXPanel::ROT_0);
     return;
