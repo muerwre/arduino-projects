@@ -7,6 +7,7 @@
 #include "Format.h"
 #include "Fonts7seg.h"
 #include "Beep.h"
+#include "Button.h"
 
 // Buttons
 int PAUSE_PIN = 2;
@@ -51,12 +52,36 @@ enum Mode
 
 Mode mode = Work;
 
+void onPausePress()
+{
+  beep();
+
+  if (paused)
+  {
+    resume();
+  }
+  else
+  {
+    pause();
+  }
+}
+
+void onNextPress()
+{
+  beep();
+  next();
+  resume();
+}
+
+Button pauseButton = Button(PAUSE_PIN, onPausePress);
+Button nextButton = Button(NEXT_PIN, onNextPress);
+
 void setup()
 {
-  pinMode(PAUSE_PIN, INPUT);
-  pinMode(NEXT_PIN, INPUT);
-
   Serial.begin(115200);
+
+  pauseButton.begin();
+  nextButton.begin();
 
   mp.begin();
   mp.setFont(compact);
@@ -71,8 +96,8 @@ void loop()
   drawTime();
   drawMode();
 
-  checkPauseButton();
-  checkNextButton();
+  pauseButton.check();
+  nextButton.check();
 
   if (paused || millis() - timing < second)
   {
@@ -204,43 +229,5 @@ void drawMode()
   case Rest:
     mp.drawText(1, 6, "r", MD_MAXPanel::ROT_0);
     return;
-  }
-}
-
-void checkPauseButton()
-{
-  if (digitalRead(PAUSE_PIN) == HIGH && lastPausePinStatus != HIGH)
-  {
-    beep();
-
-    lastPausePinStatus = HIGH;
-    if (paused)
-    {
-      resume();
-    }
-    else
-    {
-      pause();
-    }
-  }
-  else if (lastPausePinStatus != digitalRead(PAUSE_PIN))
-  {
-    lastPausePinStatus = LOW;
-  }
-}
-
-void checkNextButton()
-{
-  if (digitalRead(NEXT_PIN) == HIGH && lastNextPinStatus != HIGH)
-  {
-
-    lastNextPinStatus = HIGH;
-    beep();
-    next();
-    resume();
-  }
-  else if (lastNextPinStatus != digitalRead(NEXT_PIN))
-  {
-    lastNextPinStatus = LOW;
   }
 }
