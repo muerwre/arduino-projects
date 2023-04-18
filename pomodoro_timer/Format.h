@@ -1,3 +1,4 @@
+#pragma once
 
 void formatTime(char *to, int value)
 {

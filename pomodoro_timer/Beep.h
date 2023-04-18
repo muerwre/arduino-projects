@@ -1,3 +1,4 @@
+#pragma once
 
 // Beepers
 int BEEPER_PIN = 5;

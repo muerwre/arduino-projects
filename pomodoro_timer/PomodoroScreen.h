@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Screen.h"
 #include "Beep.h"
 #include "Format.h"
@@ -93,7 +95,7 @@ private:
 
   // Timer values
   int timer = 0;
-  char timerString[32] = "";
+  char timerString[8] = "";
 
   // Pause
   bool paused = false;

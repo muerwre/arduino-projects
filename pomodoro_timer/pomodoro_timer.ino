@@ -5,7 +5,8 @@
 #include <MD_MAXPanel.h>
 
 #include "Fonts7seg.h"
-#include "Pomodoro.h"
+#include "PomodoroScreen.h"
+#include "TimerScreen.h"
 #include "Button.h"
 
 // LEDs
@@ -20,13 +21,13 @@ MD_MAXPanel mp = MD_MAXPanel(HARDWARE_TYPE, CS_PIN, 3, 1);
 // Screens
 enum Screens
 {
-  Clock,
+  Timer,
   Pomodoro,
 };
 
 Screens screen = Pomodoro;
 PomodoroScreen pomodoro = PomodoroScreen();
-Screen &currentScreen = pomodoro;
+TimerScreen timer = TimerScreen();
 
 // Buttons
 int PAUSE_PIN = 2;
@@ -34,16 +35,53 @@ int NEXT_PIN = 3;
 
 void pause()
 {
-  currentScreen.onPause();
+  getCurrentScreen().onPause();
 }
 
 void next()
 {
-  currentScreen.onNext();
+  getCurrentScreen().onNext();
+}
+
+void nextScreen()
+{
+  switch (screen)
+  {
+  case Pomodoro:
+    screen = Timer;
+    break;
+  default:
+    screen = Pomodoro;
+    break;
+  }
+
+  mp.clear();
+  getCurrentScreen().begin();
 }
 
 Button pauseButton = Button(PAUSE_PIN, pause);
-Button nextButton = Button(NEXT_PIN, next);
+Button nextButton = Button(NEXT_PIN, next, nextScreen);
+
+void drawTime()
+{
+  mp.drawText(5, 7, getCurrentScreen().getValue(), MD_MAXPanel::ROT_0);
+}
+
+void drawMode()
+{
+  mp.drawText(1, 6, getCurrentScreen().getMode(), MD_MAXPanel::ROT_0);
+}
+
+Screen &getCurrentScreen()
+{
+  switch (screen)
+  {
+  case Pomodoro:
+    return pomodoro;
+  default:
+    return timer;
+  }
+}
 
 void setup()
 {
@@ -55,7 +93,7 @@ void setup()
   mp.begin();
   mp.setFont(compact);
 
-  currentScreen.begin();
+  getCurrentScreen().begin();
 }
 
 void loop()
@@ -66,15 +104,5 @@ void loop()
   drawTime();
   drawMode();
 
-  currentScreen.tick();
-}
-
-void drawTime()
-{
-  mp.drawText(5, 7, currentScreen.getValue(), MD_MAXPanel::ROT_0);
-}
-
-void drawMode()
-{
-  mp.drawText(1, 6, currentScreen.getMode(), MD_MAXPanel::ROT_0);
+  getCurrentScreen().tick();
 }

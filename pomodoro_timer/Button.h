@@ -1,3 +1,5 @@
+#pragma once
+
 int LONG_PRESS_DURATION = 500;
 
 class Button
@@ -54,6 +56,7 @@ public:
 
       onPress();
       pressedSince = 0;
+      return;
     }
 
     if (digitalRead(pin) == HIGH)
