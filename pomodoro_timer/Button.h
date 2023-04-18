@@ -11,14 +11,12 @@ public:
     pin = PIN;
     onPress = onPressCallback;
     onLongPress = onLongPressCallback;
-    pinMode(pin, INPUT);
   };
 
   Button(int PIN, void (*onPressCallback)())
   {
     pin = PIN;
     onPress = onPressCallback;
-    pinMode(pin, INPUT);
   };
 
   Button(int PIN)
@@ -69,6 +67,16 @@ public:
       pressedSince = millis();
       return;
     }
+  }
+
+  void setOnPress(void (*onPressCallback)())
+  {
+    onPress = onPressCallback;
+  }
+
+  void setOnLongPress(void (*onLongPressCallback)())
+  {
+    onPress = onLongPressCallback;
   }
 
 private:
