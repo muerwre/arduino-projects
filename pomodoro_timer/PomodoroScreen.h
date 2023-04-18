@@ -4,6 +4,15 @@
 #include "Beep.h"
 #include "Format.h"
 
+// Durations
+const int WORK_DURATION = 24 * 60;      // 25 * 60
+const int REST_DURATION = 6 * 60;       // 5 * 60
+const int LONG_REST_DURATION = 16 * 60; // 15 * 60
+const int TOTAL_CYCLES = 4;
+
+const int second = 1000;
+const int blinkDuration = 250;
+
 enum Mode
 {
   Work,
@@ -89,12 +98,6 @@ public:
   }
 
 private:
-  // Durations
-  const int WORK_DURATION = 24 * 60;      // 25 * 60
-  const int REST_DURATION = 6 * 60;       // 5 * 60
-  const int LONG_REST_DURATION = 16 * 60; // 15 * 60
-  const int TOTAL_CYCLES = 4;
-
   // Timer values
   int timer = 0;
   char timerString[8] = "";
@@ -103,36 +106,34 @@ private:
   bool paused = false;
   int cycleNumber = 0;
   unsigned long timing;
-  int second = 1000;
-  int blinkDuration = 250;
   int blinkTimer = 0;
 
   // Mode
   Mode mode = Work;
 
-  void setTimer(int val)
+  const void setTimer(int val)
   {
     timer = val;
   }
 
-  void setMode(Mode m)
+  const void setMode(Mode m)
   {
     mode = m;
   }
 
-  void pause()
+  const void pause()
   {
     blinkTimer = millis();
     paused = true;
   }
 
-  void resume()
+  const void resume()
   {
     timing = millis();
     paused = false;
   }
 
-  void updateTimer()
+  const void updateTimer()
   {
     timer--;
 
@@ -144,12 +145,12 @@ private:
     }
   }
 
-  void setCycle(int cycle)
+  const void setCycle(int cycle)
   {
     cycleNumber = cycle;
   }
 
-  void next()
+  const void next()
   {
     timing = millis();
 
