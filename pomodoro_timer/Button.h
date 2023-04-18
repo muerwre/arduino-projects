@@ -39,15 +39,30 @@ public:
       return;
     }
 
+    int const isLongPress = millis() - pressedSince > LONG_PRESS_DURATION;
+
     if (digitalRead(pin) == LOW)
     {
-      // nothing happened
+      // nothing happened OR already fired
       if (pressedSince == 0)
       {
         return;
       }
 
-      if (millis() - pressedSince > LONG_PRESS_DURATION && onLongPress != NULL)
+      // debounce keypresses
+      delay(100);
+
+      // trigger was fired on HIGH state
+      if (triggerFired)
+      {
+        pressedSince = 0;
+        triggerFired = false;
+        delay(100);
+        return;
+      }
+
+      // the press was long
+      if (isLongPress && onLongPress != NULL)
       {
         onLongPress();
         pressedSince = 0;
@@ -64,10 +79,36 @@ public:
       // press started
       if (pressedSince != 0)
       {
+        // already fired, but user keeps pressing button
+        if (triggerFired)
+        {
+          return;
+        }
+
+        // if no long press, fire short one immediately
+        if (onLongPress == NULL)
+        {
+          triggerFired = true;
+          onPress();
+          return;
+        }
+
+        // handle long press if user still holds the button
+        if (isLongPress)
+        {
+          triggerFired = true;
+          onLongPress();
+          return;
+        }
+
         return;
       }
 
+      // first press event
+
+      triggerFired = false;
       pressedSince = millis();
+
       return;
     }
   }
@@ -86,4 +127,5 @@ private:
   int lastPausePinStatus = HIGH;
   int pressedSince = 0;
   int pin = 0;
+  bool triggerFired = false;
 };

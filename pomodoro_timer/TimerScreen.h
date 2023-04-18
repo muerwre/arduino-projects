@@ -28,6 +28,11 @@ public:
     updateTimer();
   }
 
+  void begin() override
+  {
+    timer = 0;
+  }
+
 private:
   int timer = 0;
   int second = 1000;
