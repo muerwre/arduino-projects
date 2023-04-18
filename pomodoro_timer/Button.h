@@ -29,6 +29,8 @@ public:
   void begin()
   {
     pinMode(pin, INPUT);
+    pressedSince = 0;
+    triggerFired = false;
   }
 
   void check()
@@ -43,21 +45,19 @@ public:
 
     if (digitalRead(pin) == LOW)
     {
-      // nothing happened OR already fired
+      // nothing happened
       if (pressedSince == 0)
       {
         return;
       }
 
-      // debounce keypresses
-      delay(100);
+      pressedSince = 0;
 
       // trigger was fired on HIGH state
       if (triggerFired)
       {
         pressedSince = 0;
         triggerFired = false;
-        delay(100);
         return;
       }
 
@@ -65,49 +65,39 @@ public:
       if (isLongPress && onLongPress != NULL)
       {
         onLongPress();
-        pressedSince = 0;
         return;
       }
 
       onPress();
-      pressedSince = 0;
       return;
     }
 
     if (digitalRead(pin) == HIGH)
     {
       // press started
-      if (pressedSince != 0)
+      if (pressedSince == 0)
       {
-        // already fired, but user keeps pressing button
-        if (triggerFired)
-        {
-          return;
-        }
-
-        // if no long press, fire short one immediately
-        if (onLongPress == NULL)
-        {
-          triggerFired = true;
-          onPress();
-          return;
-        }
-
-        // handle long press if user still holds the button
-        if (isLongPress)
-        {
-          triggerFired = true;
-          onLongPress();
-          return;
-        }
-
+        // first press event
+        triggerFired = false;
+        pressedSince = millis();
         return;
       }
 
-      // first press event
+      // already fired, but user keeps pressing button
+      if (triggerFired)
+      {
+        pressedSince = millis();
+        return;
+      }
 
-      triggerFired = false;
-      pressedSince = millis();
+      // handle long press if user still holds the button
+      if (onLongPress != NULL && millis() - pressedSince > LONG_PRESS_DURATION)
+      {
+        triggerFired = true;
+        pressedSince = 0;
+        onLongPress();
+        return;
+      }
 
       return;
     }

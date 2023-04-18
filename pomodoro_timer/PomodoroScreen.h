@@ -50,6 +50,8 @@ public:
   void begin() override
   {
     setTimer(WORK_DURATION);
+    setMode(Work);
+    setCycle(0);
     beepBeep();
     pause();
   }
