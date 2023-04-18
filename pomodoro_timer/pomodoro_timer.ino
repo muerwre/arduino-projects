@@ -2,22 +2,17 @@
 // FontGen: https://pjrp.github.io/MDParolaFontEditor
 // Examples: https://github.com/MajicDesigns/MD_Parola/tree/main/examples
 
-// Header file includes
-#include <MD_Parola.h>
-#include <MD_MAX72xx.h>
+#include <MD_MAXPanel.h>
+
 #include "Format.h"
 #include "Fonts7seg.h"
+#include "Beep.h"
 
 // Buttons
 int PAUSE_PIN = 2;
 int lastPausePinStatus = LOW;
 int NEXT_PIN = 3;
 int lastNextPinStatus = LOW;
-
-// Beepers
-int BEEPER_PIN = 5;
-int beeperFreq = 1000;
-int beeperDuration = 150;
 
 // LEDs
 #define USE_GENERIC_HW 1
@@ -27,7 +22,7 @@ int beeperDuration = 150;
 #define DATA_PIN 11   // DATA or MOSI
 #define CS_PIN 10     // CS or SS
 
-MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
+MD_MAXPanel mp = MD_MAXPanel(HARDWARE_TYPE, CS_PIN, 3, 1);
 
 // Durations
 const int WORK_DURATION = 24 * 60;      // 25 * 60
@@ -63,19 +58,18 @@ void setup()
 
   Serial.begin(115200);
 
-  P.begin();
-  P.setFont(compact);
-  P.setSpeed(10);
+  mp.begin();
+  mp.setFont(compact);
 
   setTimer(WORK_DURATION);
   beepBeep();
   pause();
-  setMode(Work);
 }
 
 void loop()
 {
-  display();
+  drawTime();
+  drawMode();
 
   checkPauseButton();
   checkNextButton();
@@ -138,6 +132,7 @@ void setCycle(int cycle)
 
 void next()
 {
+  mp.clear();
   timing = millis();
 
   if (cycleNumber == TOTAL_CYCLES - 1)
@@ -170,10 +165,8 @@ void next()
   setMode(Work);
 }
 
-void display()
+void drawTime()
 {
-  P.displayAnimate();
-
   if (paused)
   {
     int now = millis();
@@ -186,25 +179,30 @@ void display()
 
     if (float(diff) < floor((float)blinkDuration / 2))
     {
-      P.displayText("", PA_CENTER, P.getSpeed(), P.getPause(), PA_NO_EFFECT, PA_NO_EFFECT);
+      mp.drawText(5, 7, "     ", MD_MAXPanel::ROT_0);
       return;
     }
   }
 
   formatTime(timerString, timer);
-  P.displayText(timerString, PA_CENTER, P.getSpeed(), P.getPause(), PA_NO_EFFECT, PA_NO_EFFECT);
+
+  mp.drawText(5, 7, timerString, MD_MAXPanel::ROT_0);
 }
 
-void beep()
+void drawMode()
 {
-  tone(BEEPER_PIN, beeperFreq, beeperDuration);
-}
-
-void beepBeep()
-{
-  tone(BEEPER_PIN, beeperFreq, beeperDuration);
-  delay(beeperDuration * 1.5);
-  tone(BEEPER_PIN, beeperFreq, beeperDuration);
+  switch (mode)
+  {
+  case Clock:
+    mp.drawText(1, 6, "c", MD_MAXPanel::ROT_0);
+    return;
+  case Work:
+    mp.drawText(1, 6, "w", MD_MAXPanel::ROT_0);
+    return;
+  case Rest:
+    mp.drawText(1, 6, "r", MD_MAXPanel::ROT_0);
+    return;
+  }
 }
 
 void checkPauseButton()
